@@ -1,0 +1,169 @@
+<style>
+
+
+
+    .body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 17px 10px;
+    }
+
+    @media (max-width: 520px) {
+
+        .body {
+            align-items: flex-start;
+        }
+    }
+
+    .title {
+        position: sticky;
+        top: 0;
+        color: #696f77;
+        font-size: 16px;
+        font-family: Montserrat;
+        font-weight: 600;
+        width: 100%;
+        text-align: center;
+        background: white;
+        padding: 13px 8px;
+    }
+
+    .steps {
+        padding: 11px 0 0;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        flex-wrap: nowrap;
+    }
+
+    .step .date, .step .hour, .step .icon_ {
+        flex-shrink: 0;
+    }
+
+    .step.last .details {
+        padding-bottom: 0;
+    }
+
+    .date {
+        color: #1c355e;
+        width: 70px;
+        font-size: 14px;
+        font-family: Montserrat;
+        white-space: nowrap;
+    }
+
+    .hour, .comment, .address {
+        color: #888e96;
+        font-size: 14px;
+        font-family: Montserrat;
+    }
+
+    .address .city {
+        margin-right: 7px;
+    }
+
+    .status {
+        color: #1c355e;
+        width: 270px;
+        font-size: 16px;
+        font-family: Montserrat;
+        font-weight: bolder;
+    }
+
+    .col {
+        padding: 0 10px;
+    }
+
+    .step-line {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .details {
+        padding-bottom: 39px;
+    }
+
+    .step-line .icon_ .inner {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        color: #428bca;
+        width: 20px;
+        height: 20px;
+        margin-bottom: 2px;
+    }
+
+    .step-line .icon_ .inner.bordered {
+        border: solid 1px #428bca;
+        border-radius: 50%;
+    }
+
+    .step-line .icon_ .inner.bordered .mat-icon {
+        font-size: 18px;
+        width: unset;
+        height: unset;
+    }
+
+    .step-line .icon_.delayed .inner {
+        color: #f6a800;
+    }
+
+    .step-line .line {
+        background: #428bca;
+        width: 1px;
+        height: 100%;
+        margin-bottom: 2px;
+    }
+
+    .step-line .line.delayed {
+        background: #f6a800;
+    }
+</style>
+
+<div class="body">
+    <div class="title">Shipment History</div>
+    <div class="steps">
+        <div class="step" [class.last]="isLast" *ngFor="let step of data.shipmentHistory; let isFirst=first; let index=index; let isLast=last;">
+            <div [class.hidden]="isFirst || (!isFirst && formatDate(data.shipmentHistory[index-1].eventDateTime, 'MMM d', 'en-US') !== formatDate(data.shipmentHistory[index].eventDateTime, 'MMM d', 'en-US'))" class="col date">
+                {{step.eventDateTime | date: "MMM d"}}
+            </div>
+            <div class="col hour">
+                {{step.eventDateTime | date: "HH:mm"}}
+            </div>
+            <div class="col step-line">
+                <span class="icon_" [class.delayed]="step.shipmentIsDelayed" [ngSwitch]="step.eventPosition.status">
+                    <div class="inner bordered delivered" *ngSwitchCase="'DELIVERED'">
+                        <mat-icon>check</mat-icon>
+                    </div>
+                    <div class="inner bordered arrived" *ngSwitchCase="'ARRIVED'">
+                        <mat-icon>where_to_vote</mat-icon>
+                    </div>
+                    <div class="inner" *ngSwitchDefault>
+                        <mat-icon>circle</mat-icon>
+                    </div>
+                </span>
+                <div class="line" [class.delayed]="(!isLast && data.shipmentHistory[index+1].shipmentIsDelayed) || step.shipmentIsDelayed" *ngIf="!isLast;"></div>
+            </div>
+            <div class="col details">
+                <div class="status">
+                    {{step.eventPosition.status}}
+                </div>
+                <div class="comment" *ngIf="step.eventPosition.comments !== 'null'">
+                    {{step.eventPosition.comments}}
+                </div>
+                <div class="address">
+                    <span class="city">{{step.eventPosition.city}}</span>
+                    <span class="abbr">{{step.eventPosition.state}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
